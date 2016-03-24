@@ -26,19 +26,25 @@ Window {
             return;
         }
         var request = new XMLHttpRequest();
-        request.open("GET", "http://finance.google.com/finance/info?client=ig&q=" + idSettings.stocksArray, true);
+        var url = "http://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.quotes where symbol in (" + idSettings.stocksArray + ")&env=http://datatables.org/alltables.env&format=json";
+        request.open("GET", url, true);
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
-                var jsonObject = JSON.parse(request.responseText.replace("// ", ""));
+                var jsonObject = JSON.parse(request.responseText);
                 if (jsonObject.errors === undefined) {
-                    for (var index in jsonObject)
-                    {
-                        for (var i = 0; i < idStockList.model.count;) {
-                            if (idStockList.model.get(i).t === jsonObject[index].t) {
-                                idStockList.model.setProperty(i, "l", jsonObject[index].l);
+                    var quotes = jsonObject.query.results.quote;
+                    if (quotes.constructor === Array) {
+                        for (var index in quotes)
+                        {
+                            for (var i = 0; i < idStockList.model.count;) {
+                                if (idStockList.model.get(i).t + ".SA" === quotes[index].Symbol) {
+                                    idStockList.model.setProperty(i, "l", quotes[index].Bid.replace('.', ','));
+                                }
+                                i++;
                             }
-                            i++;
                         }
+                    } else {
+                        idStockList.model.setProperty(0, "l", quotes.Bid.replace('.', ','));
                     }
                 } else {
                     console.log("Erro: " + jsonObject.errors[0].message);
@@ -52,7 +58,7 @@ Window {
     function copyModel2Array() {
         var stocks = "";
         for (var i = 0; i < idStockList.model.count;) {
-            stocks = stocks.concat((i > 0 ? "," : "") + idStockList.model.get(i).t);
+            stocks = stocks.concat((i > 0 ? "," : "") + '"' + idStockList.model.get(i).t + '.SA"');
             i++;
         }
         idSettings.stocksArray = stocks;
@@ -87,9 +93,9 @@ Window {
     Component.onCompleted: {
         console.log(idSettings.stocksArray);
         if (idSettings.stocksArray.length > 0) {
-            var stocks = idSettings.stocksArray.split(",");
+            var stocks = idSettings.stocksArray.replace(/"/g, '').split(",");
             for (var i = 0; i < stocks.length;) {
-                idStockList.model.append({ t: stocks[i], l: "0,00" });
+                idStockList.model.append({ t: stocks[i].replace('.SA', ''), l: "0,00" });
                 i++;
             }
         }

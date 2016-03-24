@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>icon175x175.png</file>
         <file>app.ico</file>
     </qresource>
 </RCC>
