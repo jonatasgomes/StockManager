@@ -1,0 +1,10 @@
+http://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.quotes where symbol in ("YHOO","AAPL","GOOG","MSFT")&env=http://datatables.org/alltables.env&format=json
+
+http://query.yahooapis.com/v1/public/yql?q=select * from yahoo.finance.quotes where symbol in ("PETR4.SA")&env=http://datatables.org/alltables.env&format=json
+
+Lucas NetCombo -> 15mb + tv, 104,9 * 4, 159 * 6
+99601 9349
+
+22032016 4986926
+3109 3251
+103,70
