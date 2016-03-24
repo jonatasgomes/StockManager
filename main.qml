@@ -38,13 +38,19 @@ Window {
                         {
                             for (var i = 0; i < idStockList.model.count;) {
                                 if (idStockList.model.get(i).t + ".SA" === quotes[index].Symbol) {
-                                    idStockList.model.setProperty(i, "l", quotes[index].Bid.replace('.', ','));
+                                    idStockList.model.setProperty(i, "l", parseFloat(quotes[index].Bid));
+                                    idStockList.model.setProperty(i, "a", parseFloat(quotes[index].Open));
+                                    idStockList.model.setProperty(i, "n", parseFloat(quotes[index].DaysLow));
+                                    idStockList.model.setProperty(i, "x", parseFloat(quotes[index].DaysHigh));
                                 }
                                 i++;
                             }
                         }
                     } else {
-                        idStockList.model.setProperty(0, "l", quotes.Bid.replace('.', ','));
+                        idStockList.model.setProperty(0, "l", parseFloat(quotes.Bid));
+                        idStockList.model.setProperty(0, "a", parseFloat(quotes.Open));
+                        idStockList.model.setProperty(0, "n", parseFloat(quotes.DaysLow));
+                        idStockList.model.setProperty(0, "x", parseFloat(quotes.DaysHigh));
                     }
                 } else {
                     console.log("Erro: " + jsonObject.errors[0].message);
@@ -73,7 +79,7 @@ Window {
                 i++;
             }
             idTimer.stop();
-            idStockList.model.append({t: stock, l: "0,00" });
+            idStockList.model.append({t: stock, l: 0.00, a: 0.00, n: 0.00, x: 0.00 });
             idStockList.currentIndex = idStockList.count - 1;
             idStockList.positionViewAtEnd();
             copyModel2Array();
@@ -95,7 +101,7 @@ Window {
         if (idSettings.stocksArray.length > 0) {
             var stocks = idSettings.stocksArray.replace(/"/g, '').split(",");
             for (var i = 0; i < stocks.length;) {
-                idStockList.model.append({ t: stocks[i].replace('.SA', ''), l: "0,00" });
+                idStockList.model.append({ t: stocks[i].replace('.SA', ''), l: 0.00, a: 0.00, n: 0.00, x: 0.00 });
                 i++;
             }
         }
@@ -187,24 +193,73 @@ Window {
                 height: idStockList.height / 10
                 width: idStockList.width
                 color: ListView.isCurrentItem ? "darkCyan" : "white"
+                property bool isSelected: ListView.isCurrentItem
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
                         idStockList.currentIndex = model.index;
                     }
                 }
-                Text {
+                Rectangle {//border.width: 1
                     anchors {
                         top: parent.top
                         left: parent.left
                         right: parent.right; rightMargin: idStockList.width * 0.2
                         bottom: parent.bottom
                     }
-                    verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                    color: parent.ListView.isCurrentItem ? "white" : "black"
-                    font.bold: parent.ListView.isCurrentItem
-                    font.pixelSize: idRoot.pixelSize
-                    text: model.t + ": " + model.l
+                    color: "transparent"
+                    Text {
+                        anchors {
+                            top: parent.top
+                            left: parent.left
+                            right: parent.right; rightMargin: parent.width * 0.75
+                            bottom: parent.bottom
+                        }
+                        verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
+                        color: model.a > model.l ? "red" : (isSelected ? Qt.lighter("green", 1.9) : "green")
+                        font.bold: parent.ListView.isCurrentItem
+                        font.pixelSize: idRoot.pixelSize
+                        text: model.t + ": " + model.l
+                    }
+                    Text {
+                        anchors {
+                            top: parent.top
+                            left: parent.left; leftMargin: parent.width * 0.25
+                            right: parent.right; rightMargin: parent.width * 0.5
+                            bottom: parent.bottom
+                        }
+                        verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
+                        color: isSelected ? "white" : "black"
+                        font.bold: parent.ListView.isCurrentItem
+                        font.pixelSize: idRoot.pixelSize
+                        text: "Abertura: " + model.a
+                    }
+                    Text {
+                        anchors {
+                            top: parent.top
+                            left: parent.left; leftMargin: parent.width * 0.5
+                            right: parent.right; rightMargin: parent.width * 0.25
+                            bottom: parent.bottom
+                        }
+                        verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
+                        color: isSelected ? "white" : "black"
+                        font.bold: parent.ListView.isCurrentItem
+                        font.pixelSize: idRoot.pixelSize
+                        text: "Min: " + model.n
+                    }
+                    Text {
+                        anchors {
+                            top: parent.top
+                            left: parent.left; leftMargin: parent.width * 0.75
+                            right: parent.right
+                            bottom: parent.bottom
+                        }
+                        verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
+                        color: isSelected ? "white" : "black"
+                        font.bold: parent.ListView.isCurrentItem
+                        font.pixelSize: idRoot.pixelSize
+                        text: "Max: " + model.x
+                    }
                 }
                 Rectangle {
                     anchors {
