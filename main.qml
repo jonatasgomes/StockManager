@@ -37,7 +37,7 @@ Window {
                         for (var index in quotes)
                         {
                             for (var i = 0; i < idStockList.model.count;) {
-                                if (idStockList.model.get(i).t + ".SA" === quotes[index].Symbol) {
+                                if (idStockList.model.get(i).t + ".SA" === quotes[index].Symbol && quotes[index].LastTradePriceOnly !== null) {
                                     idStockList.model.setProperty(i, "l", parseFloat(quotes[index].LastTradePriceOnly));
                                     idStockList.model.setProperty(i, "a", parseFloat(quotes[index].Open));
                                     idStockList.model.setProperty(i, "n", parseFloat(quotes[index].DaysLow));
@@ -47,10 +47,12 @@ Window {
                             }
                         }
                     } else {
-                        idStockList.model.setProperty(0, "l", parseFloat(quotes.LastTradePriceOnly));
-                        idStockList.model.setProperty(0, "a", parseFloat(quotes.Open));
-                        idStockList.model.setProperty(0, "n", parseFloat(quotes.DaysLow));
-                        idStockList.model.setProperty(0, "x", parseFloat(quotes.DaysHigh));
+                        if (quotes.LastTradePriceOnly !== null) {
+                            idStockList.model.setProperty(0, "l", parseFloat(quotes.LastTradePriceOnly));
+                            idStockList.model.setProperty(0, "a", parseFloat(quotes.Open));
+                            idStockList.model.setProperty(0, "n", parseFloat(quotes.DaysLow));
+                            idStockList.model.setProperty(0, "x", parseFloat(quotes.DaysHigh));
+                        }
                     }
                 } else {
                     console.log("Erro: " + jsonObject.errors[0].message);
