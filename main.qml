@@ -38,7 +38,7 @@ Window {
                         {
                             for (var i = 0; i < idStockList.model.count;) {
                                 if (idStockList.model.get(i).t + ".SA" === quotes[index].Symbol) {
-                                    idStockList.model.setProperty(i, "l", parseFloat(quotes[index].Bid));
+                                    idStockList.model.setProperty(i, "l", parseFloat(quotes[index].LastTradePriceOnly));
                                     idStockList.model.setProperty(i, "a", parseFloat(quotes[index].Open));
                                     idStockList.model.setProperty(i, "n", parseFloat(quotes[index].DaysLow));
                                     idStockList.model.setProperty(i, "x", parseFloat(quotes[index].DaysHigh));
@@ -47,7 +47,7 @@ Window {
                             }
                         }
                     } else {
-                        idStockList.model.setProperty(0, "l", parseFloat(quotes.Bid));
+                        idStockList.model.setProperty(0, "l", parseFloat(quotes.LastTradePriceOnly));
                         idStockList.model.setProperty(0, "a", parseFloat(quotes.Open));
                         idStockList.model.setProperty(0, "n", parseFloat(quotes.DaysLow));
                         idStockList.model.setProperty(0, "x", parseFloat(quotes.DaysHigh));
