@@ -31,32 +31,38 @@ Window {
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
                 var jsonObject = JSON.parse(request.responseText);
-                if (jsonObject.errors === undefined) {
-                    var quotes = jsonObject.query.results.quote;
-                    if (quotes.constructor === Array) {
-                        for (var index in quotes)
-                        {
-                            for (var i = 0; i < idStockList.model.count;) {
-                                if (idStockList.model.get(i).t + ".SA" === quotes[index].Symbol && quotes[index].LastTradePriceOnly !== null) {
-                                    idStockList.model.setProperty(i, "l", parseFloat(quotes[index].LastTradePriceOnly));
-                                    idStockList.model.setProperty(i, "a", parseFloat(quotes[index].Open));
-                                    idStockList.model.setProperty(i, "n", parseFloat(quotes[index].DaysLow));
-                                    idStockList.model.setProperty(i, "x", parseFloat(quotes[index].DaysHigh));
-                                }
-                                i++;
+                if (jsonObject.errors !== undefined) {
+                    console.log("Erro: " + jsonObject.errors[0].message);
+                    return;
+                }
+                if (jsonObject.query.results === undefined) {
+                    return;
+                }
+                var quotes = jsonObject.query.results.quote;
+                if (quotes.constructor === Array) {
+                    for (var index in quotes)
+                    {
+                        for (var i = 0; i < idStockList.model.count;) {
+                            if (idStockList.model.get(i).t + ".SA" === quotes[index].Symbol && quotes[index].LastTradePriceOnly !== null) {
+                                idStockList.model.setProperty(i, "l", quotes[index].LastTradePriceOnly.replace('.', ','));
+                                idStockList.model.setProperty(i, "a", quotes[index].Open.replace('.', ','));
+                                idStockList.model.setProperty(i, "n", quotes[index].DaysLow.replace('.', ','));
+                                idStockList.model.setProperty(i, "x", quotes[index].DaysHigh.replace('.', ','));
+                                idStockList.model.setProperty(i, "l_", parseFloat(quotes[index].LastTradePriceOnly));
+                                idStockList.model.setProperty(i, "a_", parseFloat(quotes[index].Open));
                             }
-                        }
-                    } else {
-                        if (quotes.LastTradePriceOnly !== null) {
-                            idStockList.model.setProperty(0, "l", parseFloat(quotes.LastTradePriceOnly));
-                            idStockList.model.setProperty(0, "a", parseFloat(quotes.Open));
-                            idStockList.model.setProperty(0, "n", parseFloat(quotes.DaysLow));
-                            idStockList.model.setProperty(0, "x", parseFloat(quotes.DaysHigh));
+                            i++;
                         }
                     }
                 } else {
-                    console.log("Erro: " + jsonObject.errors[0].message);
-                    return;
+                    if (quotes.LastTradePriceOnly !== null) {
+                        idStockList.model.setProperty(0, "l", quotes.LastTradePriceOnly.replace('.', ','));
+                        idStockList.model.setProperty(0, "a", quotes.Open.replace('.', ','));
+                        idStockList.model.setProperty(0, "n", quotes.DaysLow.replace('.', ','));
+                        idStockList.model.setProperty(0, "x", quotes.DaysHigh.replace('.', ','));
+                        idStockList.model.setProperty(0, "l_", parseFloat(quotes.LastTradePriceOnly));
+                        idStockList.model.setProperty(0, "a_", parseFloat(quotes.Open));
+                    }
                 }
             }
         }
@@ -81,7 +87,7 @@ Window {
                 i++;
             }
             idTimer.stop();
-            idStockList.model.append({t: stock, l: 0.00, a: 0.00, n: 0.00, x: 0.00 });
+            idStockList.model.append({ t: stock, l: '0,00', a: '0,00', n: '0,00', x: '0,00', l_: 0.00, a_: 0.00 });
             idStockList.currentIndex = idStockList.count - 1;
             idStockList.positionViewAtEnd();
             copyModel2Array();
@@ -103,7 +109,7 @@ Window {
         if (idSettings.stocksArray.length > 0) {
             var stocks = idSettings.stocksArray.replace(/"/g, '').split(",");
             for (var i = 0; i < stocks.length;) {
-                idStockList.model.append({ t: stocks[i].replace('.SA', ''), l: 0.00, a: 0.00, n: 0.00, x: 0.00 });
+                idStockList.model.append({ t: stocks[i].replace('.SA', ''), l: '0,00', a: '0,00', n: '0,00', x: '0,00', l_: 0.00, a_: 0.00 });
                 i++;
             }
         }
@@ -192,6 +198,7 @@ Window {
             clip: true
             model: ListModel { }
             delegate: Rectangle {
+                id: wrapper
                 height: idStockList.height / 10
                 width: idStockList.width
                 color: ListView.isCurrentItem ? "darkCyan" : "white"
@@ -218,7 +225,7 @@ Window {
                             bottom: parent.bottom
                         }
                         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                        color: model.a > model.l ? "red" : (isSelected ? Qt.lighter("green", 1.9) : "green")
+                        color: model.a_ > model.l_ ? "red" : (isSelected ? Qt.lighter("green", 1.9) : "green")
                         font.bold: parent.ListView.isCurrentItem
                         font.pixelSize: idRoot.pixelSize
                         text: model.t + ": " + model.l
@@ -287,6 +294,11 @@ Window {
                         }
                     }
                 }
+//                    ListView.onRemove: SequentialAnimation {
+//                        PropertyAction { target: wrapper; property: "ListView.delayRemove"; value: true }
+//                        NumberAnimation { target: wrapper; property: "scale"; to: 0; duration: 250; easing.type: Easing.InOutQuad }
+//                        PropertyAction { target: wrapper; property: "ListView.delayRemove"; value: false }
+//                    }
             }
         }
 
