@@ -4,7 +4,6 @@ import QtQuick.Window 2.2
 import QtQuick.Controls.Styles 1.4
 import Qt.labs.settings 1.0
 
-
 Window {
     id: idRoot
     height: 400
@@ -30,7 +29,13 @@ Window {
         request.open("GET", url, true);
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
-                var jsonObject = JSON.parse(request.responseText);
+                try {
+                    var jsonObject = JSON.parse(request.responseText);
+                } catch (e) {
+                    console.log("Erro no parse: " + e);
+                    console.log(request.responseText);
+                    return;
+                }
                 if (jsonObject.errors !== undefined) {
                     console.log("Erro: " + jsonObject.errors[0].message);
                     return;
